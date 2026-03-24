@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px 20px; background: #ffffff; color: #333; }
+        .card { background: #f9f9f9; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .btn { background: #007AFF; color: white; padding: 18px 30px; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; width: 100%; }
+        .money { font-size: 48px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="money">💰</div>
+        <h1>Sales Notifier</h1>
+        <p>Tap below to enable push notifications for new sales.</p>
+        <button class="btn" onclick="enableNotifications()">Enable Sale Alerts</button>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        function enableNotifications() {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    alert("Permission granted! I'll send a test sale in 5 seconds.");
+                    setTimeout(sendFakeSale, 5000);
+                    // This triggers a sale every 12 hours (approx twice a day)
+                    setInterval(sendFakeSale, 12 * 60 * 60 * 1000); 
+                }
+            });
+        }
+
+        function sendFakeSale() {
+            // Logic: Random 1-50 in 0.5 increments
+            // (Random 2 to 100) / 2
+            const randomVal = Math.floor(Math.random() * (100 - 2 + 1) + 2);
+            const amount = (randomVal / 2).toFixed(2);
+            
+            const options = {
+                body: `New Sale: $${amount} NZD 💰`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/639/639365.png',
+                badge: 'https://cdn-icons-png.flaticon.com/512/639/639365.png'
+            };
+            
+            new Notification("You made a sale!", options);
+        }
+    </script>
+</body>
+</html>
