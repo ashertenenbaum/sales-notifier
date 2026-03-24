@@ -1,7 +1,22 @@
-self.addEventListener('install', (event) => {
+self.addEventListener('push', function(event) {
+    // Generate the random money amount locally when the ping arrives!
+    const amount = (Math.random() * (50 - 1) + 1).toFixed(2);
+    
+    const options = {
+        body: `You received a payment of ${amount} NZD from a customer.`,
+        icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
+        badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s'
+    };
+
+    event.waitUntil(
+        self.registration.showNotification('Stripe', options)
+    );
+});
+
+self.addEventListener('install', function(event) {
     self.skipWaiting();
 });
 
-self.addEventListener('push', (event) => {
-    // This allows the phone to wake up for a message
+self.addEventListener('activate', function(event) {
+    event.waitUntil(self.clients.claim());
 });
