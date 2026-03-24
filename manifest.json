@@ -1,13 +1,13 @@
 {
-  "name": "Sales Notifier",
-  "short_name": "Sales",
+  "name": "Stripe",
+  "short_name": "Stripe",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007AFF",
+  "theme_color": "#635BFF",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/639/639365.png",
+      "src": "https://images.stripeassets.com/fzn2n1nzq965/3I8VZjmeW0Kb4uNFyYdYx3/953c5936e18e5f8f42417f7cb7409d4f/newsroom-stripe-default-social-card.png?q=80",
       "sizes": "512x512",
       "type": "image/png"
     }
