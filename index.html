@@ -3,65 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stripe Dashboard</title>
+    <title>Stripe</title>
     <link rel="manifest" href="manifest.json">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Stripe">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 0; margin: 0; background: #f7faff; color: #1a1f36; }
-        
-        /* Stripe Blue Header Bar */
-        .stripe-header { background-color: white; height: 60px; display: flex; align-items: center; justify-content: start; padding-left: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .logo-img { height: 26px; }
+    <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s">
 
-        .container { padding: 90px 20px; max-width: 480px; margin: auto; }
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            text-align: center; 
+            padding: 0; 
+            margin: 0; 
+            background: #f7faff; 
+            color: #1a1f36; 
+        }
         
-        /* Main 'Dashboard' card */
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(50,50,93,0.05), 0 1px 3px rgba(0,0,0,0.1); text-align: left; }
+        .stripe-header { 
+            background-color: white; 
+            height: 60px; 
+            display: flex; 
+            align-items: center; 
+            padding-left: 20px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            z-index: 1000; 
+        }
+
+        .logo-img { height: 24px; border-radius: 4px; }
+
+        .container { padding: 100px 20px; max-width: 400px; margin: auto; }
         
-        .card-header { font-size: 14px; text-transform: uppercase; color: #8e8e93; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 20px; }
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(50,50,93,0.1); 
+            text-align: left; 
+        }
         
-        .btn { border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 12px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        .card-header { 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            color: #635BFF; 
+            font-weight: 700; 
+            letter-spacing: 1px; 
+            margin-bottom: 15px; 
+        }
         
-        /* Stripe Specific Purple/Blue */
+        .btn { 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-bottom: 12px; 
+            height: 50px; 
+        }
+        
         .btn-primary { background: #635BFF; color: white; }
         .btn-secondary { background: #f0f0f5; color: #1a1f36; }
 
-        .app-title { font-size: 24px; font-weight: 700; color: #1a1f36; margin-bottom: 5px; }
-        .app-desc { font-size: 16px; color: #3c4257; margin-top: 0; margin-bottom: 25px; }
+        .app-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .app-desc { font-size: 15px; color: #4f566b; line-height: 1.5; margin-bottom: 25px; }
 
-        #status { color: #697386; font-size: 14px; margin-top: 20px; text-align: center; font-style: italic; }
+        #status { 
+            color: #697386; 
+            font-size: 13px; 
+            margin-top: 20px; 
+            text-align: center; 
+            padding: 10px;
+            background: #fdfdfd;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
+
     <div class="stripe-header">
-        <img src="https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/4/stripe-i7qiowltd98dwi26h7gqgs.png/stripe-fa8s7wqr3uutk29ccbbhyh.png?_a=DATAiZiuZAA0" class="logo-img" alt="Stripe">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s" class="logo-img" alt="Stripe">
     </div>
 
     <div class="container">
         <div class="card">
-            <div class="card-header">Simulator Dashboard</div>
-            <h1 class="app-title">Notification Sandbox</h1>
-            <p class="app-desc">This application simulates payment success notifications.</p>
+            <div class="card-header">Live Simulation</div>
+            <h1 class="app-title">Payments Dashboard</h1>
+            <p class="app-desc">Automated sales alerts are active Monday–Friday, 7:00 AM to 5:00 PM.</p>
             
             <button class="btn btn-primary" onclick="enableNotifications()">Enable Stripe Alerts</button>
-            <button class="btn btn-secondary" onclick="startDelayedSale()">Test Delayed Notification (300s)</button>
+            <button class="btn btn-secondary" onclick="startDelayedSale()">Test Sale (300s Delay)</button>
             
-            <div id="status">Status: Waiting for permission</div>
+            <div id="status">Status: Setup Required</div>
         </div>
     </div>
 
     <script>
+        // Register the required Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
+        }
+
+        // Check for sales every 60 seconds
+        setInterval(checkSchedule, 60000); 
+
+        function checkSchedule() {
+            const now = new Date();
+            const day = now.getDay(); // 1-5 is Mon-Fri
+            const hour = now.getHours();
+
+            const isWeekday = day >= 1 && day <= 5;
+            const isBusinessHours = hour >= 7 && hour < 17;
+
+            if (isWeekday && isBusinessHours) {
+                // 0.33% chance per minute results in ~2 sales per 10-hour window
+                if (Math.random() < 0.0033) { 
+                    sendFakeSale();
+                }
+            }
         }
 
         function enableNotifications() {
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     document.getElementById('status').innerText = "Status: Alerts Enabled ✅";
-                    setTimeout(sendFakeSale, 2000); // Immediate test
+                    // Immediate test sale
+                    setTimeout(sendFakeSale, 2000);
+                } else {
+                    document.getElementById('status').innerText = "Status: Permission Denied ❌";
                 }
             });
         }
@@ -71,36 +144,23 @@
                 alert("Please enable alerts first!");
                 return;
             }
-
-            let secondsLeft = 300;
-            document.getElementById('status').innerText = `Status: Delayed test in ${secondsLeft}s...`;
-
-            const timer = setInterval(() => {
-                secondsLeft--;
-                document.getElementById('status').innerText = `Status: Delayed test in ${secondsLeft}s...`;
-                if (secondsLeft <= 0) clearInterval(timer);
-            }, 1000);
-
-            // 300 Seconds
-            setTimeout(() => {
-                sendFakeSale();
-                document.getElementById('status').innerText = "Status: Alert Sent! 💰";
-            }, 300000); 
+            document.getElementById('status').innerText = "Status: Sending in 5 minutes...";
+            setTimeout(sendFakeSale, 300000); 
         }
 
         function sendFakeSale() {
+            // Random amount 1.0 to 50.0 in 0.5 increments
             const randomVal = Math.floor(Math.random() * (100 - 2 + 1) + 2);
             const amount = (randomVal / 2).toFixed(2);
             
             const options = {
-                // Official sounding body with money bag
                 body: `Successful Payment: $${amount} NZD from customer 💰`,
-                // Stripe payment icon
-                icon: 'https://cdn.iconscout.com/icon/free/png-256/free-stripe-logo-icon-svg-download-png-498440.png?f=webp',
-                badge: 'https://cdn.iconscout.com/icon/free/png-256/free-stripe-logo-icon-svg-download-png-498440.png?f=webp'
+                icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
+                badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s'
             };
             
             new Notification("Payment Received", options);
+            console.log(`Sale notification sent: $${amount}`);
         }
     </script>
 </body>
