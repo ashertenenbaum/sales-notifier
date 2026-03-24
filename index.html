@@ -8,17 +8,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px 20px; background: #ffffff; color: #333; }
-        .card { background: #f9f9f9; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .btn { background: #007AFF; color: white; padding: 18px 30px; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; width: 100%; }
+        .card { background: #f9f9f9; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); max-width: 400px; margin: auto; }
+        .btn { background: #007AFF; color: white; padding: 18px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 15px; }
+        .btn-delay { background: #5856D6; } /* Different color for the delay button */
         .money { font-size: 48px; margin: 20px 0; }
+        #status { color: #8e8e93; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="money">💰</div>
         <h1>Sales Notifier</h1>
-        <p>Tap below to enable push notifications for new sales.</p>
-        <button class="btn" onclick="enableNotifications()">Enable Sale Alerts</button>
+        
+        <button class="btn" onclick="enableNotifications()">1. Enable Notifications</button>
+        
+        <button class="btn btn-delay" onclick="startDelayedSale()">2. Send Sale in 5 Mins</button>
+        
+        <div id="status">Status: Ready</div>
     </div>
 
     <script>
@@ -29,17 +35,37 @@
         function enableNotifications() {
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
-                    alert("Permission granted! I'll send a test sale in 5 seconds.");
-                    setTimeout(sendFakeSale, 5000);
-                    // This triggers a sale every 12 hours (approx twice a day)
-                    setInterval(sendFakeSale, 12 * 60 * 60 * 1000); 
+                    document.getElementById('status').innerText = "Status: Notifications Allowed ✅";
+                    // Immediate test
+                    setTimeout(sendFakeSale, 2000);
                 }
             });
         }
 
+        function startDelayedSale() {
+            if (Notification.permission !== "granted") {
+                alert("Please enable notifications first!");
+                return;
+            }
+
+            let secondsLeft = 300;
+            document.getElementById('status').innerText = `Status: Sending in ${secondsLeft}s...`;
+
+            // Update the countdown every second
+            const timer = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('status').innerText = `Status: Sending in ${secondsLeft}s...`;
+                if (secondsLeft <= 0) clearInterval(timer);
+            }, 1000);
+
+            // Set the actual timeout for 300 seconds
+            setTimeout(() => {
+                sendFakeSale();
+                document.getElementById('status').innerText = "Status: Sale Sent! 💰";
+            }, 300000); 
+        }
+
         function sendFakeSale() {
-            // Logic: Random 1-50 in 0.5 increments
-            // (Random 2 to 100) / 2
             const randomVal = Math.floor(Math.random() * (100 - 2 + 1) + 2);
             const amount = (randomVal / 2).toFixed(2);
             
