@@ -5,162 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stripe</title>
     <link rel="manifest" href="manifest.json">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Stripe">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s">
 
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            text-align: center; 
-            padding: 0; 
-            margin: 0; 
-            background: #f7faff; 
-            color: #1a1f36; 
-        }
-        
-        .stripe-header { 
-            background-color: white; 
-            height: 60px; 
-            display: flex; 
-            align-items: center; 
-            padding-left: 20px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
-            position: fixed; 
-            top: 0; 
-            width: 100%; 
-            z-index: 1000; 
-        }
-
-        .logo-img { height: 24px; border-radius: 4px; }
-
-        .container { padding: 100px 20px; max-width: 400px; margin: auto; }
-        
-        .card { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 12px rgba(50,50,93,0.1); 
-            text-align: left; 
-        }
-        
-        .card-header { 
-            font-size: 12px; 
-            text-transform: uppercase; 
-            color: #635BFF; 
-            font-weight: 700; 
-            letter-spacing: 1px; 
-            margin-bottom: 15px; 
-        }
-        
-        .btn { 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            width: 100%; 
-            margin-bottom: 12px; 
-            height: 50px; 
-        }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f7faff; margin: 0; padding: 80px 20px; color: #1a1f36; }
+        .stripe-header { background: white; height: 60px; display: flex; align-items: center; padding-left: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo-img { height: 24px; }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(50,50,93,0.1); max-width: 400px; margin: 0 auto 20px; }
+        h2 { font-size: 14px; text-transform: uppercase; color: #635BFF; margin-bottom: 15px; }
+        .btn { border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; height: 45px; margin-bottom: 10px; }
         .btn-primary { background: #635BFF; color: white; }
-        .btn-secondary { background: #f0f0f5; color: #1a1f36; }
-
-        .app-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-        .app-desc { font-size: 15px; color: #4f566b; line-height: 1.5; margin-bottom: 25px; }
-
-        #status { 
-            color: #697386; 
-            font-size: 13px; 
-            margin-top: 20px; 
-            text-align: center; 
-            padding: 10px;
-            background: #fdfdfd;
-            border-radius: 8px;
-        }
+        .btn-outline { background: #f0f0f5; color: #1a1f36; }
+        .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eeeeee; font-size: 14px; }
+        .schedule-item:last-child { border-bottom: none; }
+        .reroll-btn { background: none; border: 1px solid #635BFF; color: #635BFF; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="stripe-header">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s" class="logo-img" alt="Stripe">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s" class="logo-img">
     </div>
 
-    <div class="container">
-        <div class="card">
-            <div class="card-header">Live Simulation</div>
-            <h1 class="app-title">Payments Dashboard</h1>
-            <p class="app-desc">Automated sales alerts are active Monday–Friday, 7:00 AM to 5:00 PM.</p>
-            
-            <button class="btn btn-primary" onclick="enableNotifications()">Enable Stripe Alerts</button>
-            <button class="btn btn-secondary" onclick="startDelayedSale()">Test Sale (300s Delay)</button>
-            
-            <div id="status">Status: Setup Required</div>
+    <div class="card">
+        <h2>Control Panel</h2>
+        <button class="btn btn-primary" onclick="enableNotifications()">Enable Stripe Alerts</button>
+        <button class="btn btn-outline" onclick="scheduleInFive()">Test Sale in 5 Mins</button>
+    </div>
+
+    <div class="card">
+        <h2>Today's Schedule</h2>
+        <div id="schedule-list">
+            <p style="color: #697386; font-size: 13px;">No sales scheduled yet.</p>
         </div>
+        <button class="btn btn-outline" style="margin-top: 15px;" onclick="generateDailySchedule()">Generate Daily Sales</button>
     </div>
 
     <script>
-        // Register the required Service Worker
+        let scheduledSales = [];
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
 
-        // Check for sales every 60 seconds
-        setInterval(checkSchedule, 60000); 
-
-        function checkSchedule() {
-            const now = new Date();
-            const day = now.getDay(); // 1-5 is Mon-Fri
-            const hour = now.getHours();
-
-            const isWeekday = day >= 1 && day <= 5;
-            const isBusinessHours = hour >= 7 && hour < 17;
-
-            if (isWeekday && isBusinessHours) {
-                // 0.33% chance per minute results in ~2 sales per 10-hour window
-                if (Math.random() < 0.0033) { 
-                    sendFakeSale();
-                }
-            }
-        }
+        // Check the schedule every 10 seconds (more precise for background tasks)
+        setInterval(processSchedule, 10000);
 
         function enableNotifications() {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    document.getElementById('status').innerText = "Status: Alerts Enabled ✅";
-                    // Immediate test sale
-                    setTimeout(sendFakeSale, 2000);
-                } else {
-                    document.getElementById('status').innerText = "Status: Permission Denied ❌";
+            Notification.requestPermission().then(p => {
+                if (p === "granted") {
+                    alert("Alerts Active!");
+                    renderSchedule();
                 }
             });
         }
 
-        function startDelayedSale() {
-            if (Notification.permission !== "granted") {
-                alert("Please enable alerts first!");
-                return;
-            }
-            document.getElementById('status').innerText = "Status: Sending in 5 minutes...";
-            setTimeout(sendFakeSale, 300000); 
+        function getRandomAmount() {
+            // Random number between 1.00 and 50.00
+            return (Math.random() * (50 - 1) + 1).toFixed(2);
         }
 
-        function sendFakeSale() {
-            // Random amount 1.0 to 50.0 in 0.5 increments
-            const randomVal = Math.floor(Math.random() * (100 - 2 + 1) + 2);
-            const amount = (randomVal / 2).toFixed(2);
+        function generateDailySchedule() {
+            scheduledSales = [];
+            const count = Math.floor(Math.random() * 4); // 0 to 3 sales
             
+            for (let i = 0; i < count; i++) {
+                const hour = Math.floor(Math.random() * (17 - 7) + 7); // 7am to 5pm
+                const minute = Math.floor(Math.random() * 60);
+                const targetTime = new Date();
+                targetTime.setHours(hour, minute, 0, 0);
+                
+                // Only add if time is in the future
+                if (targetTime > new Date()) {
+                    scheduledSales.push({ time: targetTime, amount: getRandomAmount(), id: Date.now() + i });
+                }
+            }
+            renderSchedule();
+        }
+
+        function scheduleInFive() {
+            const future = new Date(Date.now() + 300000); // Current time + 5 mins
+            scheduledSales.push({ time: future, amount: getRandomAmount(), id: Date.now() });
+            renderSchedule();
+        }
+
+        function rerollSale(id) {
+            scheduledSales = scheduledSales.map(sale => {
+                if (sale.id === id) {
+                    return { ...sale, amount: getRandomAmount() };
+                }
+                return sale;
+            });
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list');
+            if (scheduledSales.length === 0) {
+                list.innerHTML = '<p style="color: #697386; font-size: 13px;">No upcoming sales.</p>';
+                return;
+            }
+            
+            // Sort by time
+            scheduledSales.sort((a, b) => a.time - b.time);
+
+            list.innerHTML = scheduledSales.map(sale => `
+                <div class="schedule-item">
+                    <span><b>${sale.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</b> — $${sale.amount} NZD</span>
+                    <button class="reroll-btn" onclick="rerollSale(${sale.id})">Reroll</button>
+                </div>
+            `).join('');
+        }
+
+        function processSchedule() {
+            const now = new Date();
+            scheduledSales.forEach((sale, index) => {
+                if (now >= sale.time) {
+                    triggerNotification(sale.amount);
+                    scheduledSales.splice(index, 1); // Remove after firing
+                    renderSchedule();
+                }
+            });
+        }
+
+        function triggerNotification(amount) {
             const options = {
-                body: `Successful Payment: $${amount} NZD from customer 💰`,
+                body: `You received a payment of ${amount} NZD from a customer.`,
                 icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
                 badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s'
             };
-            
-            new Notification("Payment Received", options);
-            console.log(`Sale notification sent: $${amount}`);
+            new Notification("Stripe", options);
         }
     </script>
 </body>
