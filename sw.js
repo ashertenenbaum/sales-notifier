@@ -10,7 +10,7 @@ self.addEventListener('push', function(event) {
 
     // '\u200b' is an invisible, zero-width space character!
     event.waitUntil(
-        self.registration.showNotification('You have been paid!', options)
+        self.registration.showNotification('Payment recieved', options)
     );
 });
 
