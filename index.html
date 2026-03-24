@@ -2,141 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Stripe</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s">
-
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f7faff; margin: 0; padding: 80px 20px; color: #1a1f36; }
-        .stripe-header { background: white; height: 60px; display: flex; align-items: center; padding-left: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .logo-img { height: 24px; }
-        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(50,50,93,0.1); max-width: 400px; margin: 0 auto 20px; }
-        h2 { font-size: 14px; text-transform: uppercase; color: #635BFF; margin-bottom: 15px; }
-        .btn { border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; height: 45px; margin-bottom: 10px; }
-        .btn-primary { background: #635BFF; color: white; }
-        .btn-outline { background: #f0f0f5; color: #1a1f36; }
-        .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eeeeee; font-size: 14px; }
-        .schedule-item:last-child { border-bottom: none; }
-        .reroll-btn { background: none; border: 1px solid #635BFF; color: #635BFF; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f7faff; margin: 0; padding: 80px 20px; color: #1a1f36; text-align: center;}
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        .btn { background: #635BFF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; height: 50px; margin-top: 20px;}
     </style>
 </head>
 <body>
-
-    <div class="stripe-header">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s" class="logo-img">
-    </div>
-
     <div class="card">
-        <h2>Control Panel</h2>
-        <button class="btn btn-primary" onclick="enableNotifications()">Enable Stripe Alerts</button>
-        <button class="btn btn-outline" onclick="scheduleInFive()">Test Sale in 5 Mins</button>
-    </div>
-
-    <div class="card">
-        <h2>Today's Schedule</h2>
-        <div id="schedule-list">
-            <p style="color: #697386; font-size: 13px;">No sales scheduled yet.</p>
-        </div>
-        <button class="btn btn-outline" style="margin-top: 15px;" onclick="generateDailySchedule()">Generate Daily Sales</button>
+        <h2>Live Simulator Config</h2>
+        <p>Connect your phone to the Cloudflare automated schedule.</p>
+        <button class="btn" onclick="subscribeToPush()">Connect to Cloudflare</button>
+        <p id="status" style="margin-top: 15px; font-size: 14px; color: #697386;"></p>
     </div>
 
     <script>
-        let scheduledSales = [];
+        // Convert VAPID key for the browser
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        const PUBLIC_KEY = "BGV0GlOSs6M0o4Oc1POfFZWWxdZnFp9mjzqRPbuHiJ7Qhqjd-ov1FxrQsldyv6L0AeUtjOTyMtZ10N6vOJ-RVJo"; // PUT YOUR PUBLIC VAPID KEY HERE
+        const WORKER_URL = "https://stripe-notifier.asher-e65.workers.dev/"; // PUT YOUR CLOUDFLARE URL HERE
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
 
-        // Check the schedule every 10 seconds (more precise for background tasks)
-        setInterval(processSchedule, 10000);
-
-        function enableNotifications() {
-            Notification.requestPermission().then(p => {
-                if (p === "granted") {
-                    alert("Alerts Active!");
-                    renderSchedule();
-                }
-            });
-        }
-
-        function getRandomAmount() {
-            // Random number between 1.00 and 50.00
-            return (Math.random() * (50 - 1) + 1).toFixed(2);
-        }
-
-        function generateDailySchedule() {
-            scheduledSales = [];
-            const count = Math.floor(Math.random() * 4); // 0 to 3 sales
+        async function subscribeToPush() {
+            document.getElementById('status').innerText = "Connecting...";
+            const registration = await navigator.serviceWorker.ready;
             
-            for (let i = 0; i < count; i++) {
-                const hour = Math.floor(Math.random() * (17 - 7) + 7); // 7am to 5pm
-                const minute = Math.floor(Math.random() * 60);
-                const targetTime = new Date();
-                targetTime.setHours(hour, minute, 0, 0);
-                
-                // Only add if time is in the future
-                if (targetTime > new Date()) {
-                    scheduledSales.push({ time: targetTime, amount: getRandomAmount(), id: Date.now() + i });
-                }
+            try {
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(PUBLIC_KEY)
+                });
+
+                // Send the subscription to Cloudflare
+                await fetch(WORKER_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(subscription),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                document.getElementById('status').innerText = "✅ Connected! You will now receive automated pushes.";
+            } catch (error) {
+                document.getElementById('status').innerText = "❌ Error. Ensure you are using the Home Screen App.";
+                console.error(error);
             }
-            renderSchedule();
-        }
-
-        function scheduleInFive() {
-            const future = new Date(Date.now() + 300000); // Current time + 5 mins
-            scheduledSales.push({ time: future, amount: getRandomAmount(), id: Date.now() });
-            renderSchedule();
-        }
-
-        function rerollSale(id) {
-            scheduledSales = scheduledSales.map(sale => {
-                if (sale.id === id) {
-                    return { ...sale, amount: getRandomAmount() };
-                }
-                return sale;
-            });
-            renderSchedule();
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list');
-            if (scheduledSales.length === 0) {
-                list.innerHTML = '<p style="color: #697386; font-size: 13px;">No upcoming sales.</p>';
-                return;
-            }
-            
-            // Sort by time
-            scheduledSales.sort((a, b) => a.time - b.time);
-
-            list.innerHTML = scheduledSales.map(sale => `
-                <div class="schedule-item">
-                    <span><b>${sale.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</b> — $${sale.amount} NZD</span>
-                    <button class="reroll-btn" onclick="rerollSale(${sale.id})">Reroll</button>
-                </div>
-            `).join('');
-        }
-
-        function processSchedule() {
-            const now = new Date();
-            scheduledSales.forEach((sale, index) => {
-                if (now >= sale.time) {
-                    triggerNotification(sale.amount);
-                    scheduledSales.splice(index, 1); // Remove after firing
-                    renderSchedule();
-                }
-            });
-        }
-
-        function triggerNotification(amount) {
-            const options = {
-                body: `You received a payment of ${amount} NZD from a customer.`,
-                icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
-                badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s'
-            };
-            new Notification("Stripe", options);
         }
     </script>
 </body>
