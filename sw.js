@@ -5,11 +5,14 @@ self.addEventListener('push', function(event) {
     const options = {
         body: `You received a payment of ${amount} NZD from a customer.`,
         icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
-        badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s'
+        badge: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQGluJhW7I1NYU7jF77E-9K9I46_ib_DUNHw&s',
+        // 'requireInteraction' keeps the notification on screen until you dismiss it
+        requireInteraction: true 
     };
 
+    // We changed the title so iOS naturally adds "from Stripe" underneath it
     event.waitUntil(
-        self.registration.showNotification('Stripe', options)
+        self.registration.showNotification('Payment Received', options)
     );
 });
 
